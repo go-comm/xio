@@ -5,6 +5,14 @@ import (
 	"io"
 )
 
+var _ io.WriterTo = (*WriterToFunc)(nil)
+
+type WriterToFunc func(io.Writer) (int64, error)
+
+func (f WriterToFunc) WriteTo(w io.Writer) (int64, error) {
+	return f(w)
+}
+
 var ErrUnexpectedData = errors.New("unexpected data")
 
 func WriteData(w io.Writer, data interface{}) (n int64, err error) {

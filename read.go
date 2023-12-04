@@ -2,6 +2,14 @@ package xio
 
 import "io"
 
+var _ io.ReaderFrom = (*ReaderFromFunc)(nil)
+
+type ReaderFromFunc func(r io.Reader) (int64, error)
+
+func (f ReaderFromFunc) ReadFrom(r io.Reader) (int64, error) {
+	return f(r)
+}
+
 func AppendReadBytes(r io.Reader, b []byte) ([]byte, error) {
 	if len(b) == 0 {
 		b = make([]byte, 0, 512)
