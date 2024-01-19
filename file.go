@@ -31,7 +31,7 @@ func OpenFile(filename string, flag int, perm os.FileMode) (*os.File, error) {
 	return f, err
 }
 
-func Close(c io.Closer, err error) error {
+func close0(c io.Closer, err error) error {
 	if c == nil {
 		return err
 	}
@@ -41,28 +41,36 @@ func Close(c io.Closer, err error) error {
 	return err
 }
 
-func CloseFile(f *os.File, err error) error {
-	return Close(f, err)
+func Close(c io.Closer) error {
+	return close0(c, nil)
 }
 
-func CloseReader(r io.Reader, err error) error {
+func CloseError(c io.Closer, err error) error {
+	return close0(c, err)
+}
+
+func CloseFile(f *os.File, err error) error {
+	return close0(f, err)
+}
+
+func CloseReader(r io.Reader) error {
 	if r == nil {
-		return err
+		return nil
 	}
 	if rc, ok := r.(io.ReadCloser); ok {
-		return Close(rc, err)
+		return close0(rc, nil)
 	}
-	return err
+	return nil
 }
 
-func CloseWriter(w io.Writer, err error) error {
+func CloseWriter(w io.Writer) error {
 	if w == nil {
-		return err
+		return nil
 	}
 	if wc, ok := w.(io.WriteCloser); ok {
-		return Close(wc, err)
+		return close0(wc, nil)
 	}
-	return err
+	return nil
 }
 
 func FileSize(filename string) (int64, error) {
