@@ -31,12 +31,36 @@ func OpenFile(filename string, flag int, perm os.FileMode) (*os.File, error) {
 	return f, err
 }
 
-func CloseFile(f *os.File, err error) error {
-	if f == nil {
+func Close(c io.Closer, err error) error {
+	if c == nil {
 		return err
 	}
-	if err2 := f.Close(); err2 != nil && err == nil {
+	if err2 := c.Close(); err2 != nil && err == nil {
 		err = err2
+	}
+	return err
+}
+
+func CloseFile(f *os.File, err error) error {
+	return Close(f, err)
+}
+
+func CloseReader(r io.Reader, err error) error {
+	if r == nil {
+		return err
+	}
+	if rc, ok := r.(io.ReadCloser); ok {
+		return Close(rc, err)
+	}
+	return err
+}
+
+func CloseWriter(w io.Writer, err error) error {
+	if w == nil {
+		return err
+	}
+	if wc, ok := w.(io.WriteCloser); ok {
+		return Close(wc, err)
 	}
 	return err
 }
